@@ -1,3 +1,4 @@
+throw new Error('APP FILE IS DEFINITELY RUNNING')
 import { supabase } from './lib/supabase'
 import { useEffect, useState } from 'react'
 import React, { useState } from 'react'
