@@ -1,3 +1,14 @@
+<div style={{
+  background: 'red',
+  color: 'white',
+  padding: '20px',
+  fontSize: '24px',
+  textAlign: 'center',
+  fontWeight: 'bold'
+}}>
+  THIS IS A LIVE TEST – IF YOU SEE THIS, THE DEPLOYMENT UPDATED
+</div>
+
 throw new Error('APP FILE IS DEFINITELY RUNNING')
 import { supabase } from './lib/supabase'
 import { useEffect, useState } from 'react'
