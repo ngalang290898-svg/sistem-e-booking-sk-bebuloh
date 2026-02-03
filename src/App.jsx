@@ -6,6 +6,8 @@ import RoomList from './components/RoomList'
 import TopNav from './components/TopNav'
 import './style.css'
 
+console.log('APP.JSX IS RUNNING')
+
 // Demo data: rooms & times (we'll later replace with Supabase)
 const ROOMS = [
   { id: 'r1', key: 'computer', name_en: 'Computer Lab', name_bm: 'Makmal Komputer', icon: 'computer' },
