@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.logo {
+  width: 32px;
+  margin-right: 8px;
+}
+
+.room-cards, .room-focus {
+  padding: 16px;
+}
+
+.card-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.room-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  text-align: left;
+}
+
+.slot-card {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.slot-card.recess {
+  opacity: 0.5;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet {
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(12px);
+  width: 100%;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  box-shadow: var(--shadow-sheet);
+}
+
+button.primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+}
