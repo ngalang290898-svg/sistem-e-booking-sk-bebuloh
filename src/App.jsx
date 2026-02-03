@@ -1,29 +1,59 @@
 function App() {
   return (
     <div className="app">
-      {/* HERO SECTION */}
-      <header className="hero">
-        <div className="hero-glass">
-          <h1>Sistem E-Booking SK Bebuloh</h1>
-          <p className="hero-subtitle">
-            A simple and organised way for teachers to book special rooms,
-            clearly and without clashes.
-          </p>
+      {/* TOP NAVIGATION */}
+      <nav className="nav">
+        <div className="nav-left">
+          <span className="logo">E-Booking</span>
+          <span className="school">SK Bebuloh</span>
         </div>
-      </header>
 
-      {/* MAIN CONTENT */}
-      <main className="content">
-        <section className="intro-card">
-          <h2>What is this system?</h2>
+        <div className="nav-right">
+          <button className="nav-btn active">Rooms</button>
+          <button className="nav-btn">Timetable</button>
+          <button className="nav-btn">My Bookings</button>
+          <button className="nav-btn ghost">EN</button>
+        </div>
+      </nav>
+
+      {/* MAIN AREA */}
+      <main className="main">
+        <section className="search-card glass">
+          <h1>Book Special Rooms</h1>
           <p>
-            This platform helps teachers plan their lessons better by allowing
-            early booking of special rooms such as the computer lab, science lab,
-            music room, and more.
+            Choose a room, date and time slot to plan your lesson smoothly.
           </p>
-          <p className="muted">
-            Designed for SK Bebuloh • Mobile-friendly • Bilingual
-          </p>
+
+          <div className="search-grid">
+            <div className="input-box">Select Room</div>
+            <div className="input-box">Select Date</div>
+            <div className="input-box">Select Time</div>
+            <button className="search-btn">Check Availability</button>
+          </div>
+        </section>
+
+        <section className="room-section">
+          <h2>Available Rooms</h2>
+
+          <div className="room-grid">
+            <div className="room-card glass">
+              <h3>Computer Lab</h3>
+              <p>Makmal Komputer</p>
+              <button>Book</button>
+            </div>
+
+            <div className="room-card glass">
+              <h3>Science Lab</h3>
+              <p>Makmal Sains</p>
+              <button>Book</button>
+            </div>
+
+            <div className="room-card glass">
+              <h3>Music Room</h3>
+              <p>Bilik Muzik</p>
+              <button>Book</button>
+            </div>
+          </div>
         </section>
       </main>
     </div>
