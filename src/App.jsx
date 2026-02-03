@@ -6,9 +6,11 @@ import RoomList from './components/RoomList'
 import Timetable from './components/Timetable'
 
 export default function App() {
-  const [selectedRoom, setSelectedRoom] = useState(null)
   const [rooms, setRooms] = useState([])
+  const [timeSlots, setTimeSlots] = useState([])
+  const [selectedRoom, setSelectedRoom] = useState(null)
 
+  // Load rooms
   useEffect(() => {
     const loadRooms = async () => {
       const { data, error } = await supabase
@@ -18,7 +20,7 @@ export default function App() {
         .order('name_en')
 
       if (error) {
-        console.error('Error loading rooms:', error)
+        console.error('Rooms error:', error)
       } else {
         setRooms(data)
       }
@@ -27,7 +29,24 @@ export default function App() {
     loadRooms()
   }, [])
 
-  console.log('ROOMS FROM SUPABASE:', rooms)
+  // Load time slots (weekday first)
+  useEffect(() => {
+    const loadTimeSlots = async () => {
+      const { data, error } = await supabase
+        .from('time_slots')
+        .select('*')
+        .eq('day_type', 'weekday')
+        .order('start_time')
+
+      if (error) {
+        console.error('Time slots error:', error)
+      } else {
+        setTimeSlots(data)
+      }
+    }
+
+    loadTimeSlots()
+  }, [])
 
   return (
     <div className="app-shell">
@@ -45,22 +64,16 @@ export default function App() {
         <section className="right-pane">
           <div className="search-card">
             <div className="search-left">
-              <h2>Check room availability</h2>
+              <h2>Room Availability</h2>
               <p className="muted">
-                Select a room to highlight its weekly timetable, or view all rooms.
+                Select a room to view its weekly availability.
               </p>
-            </div>
-            <div className="search-right">
-              <button className="btn primary">This Week</button>
-              <button className="btn ghost">Next Week</button>
             </div>
           </div>
 
-          {/* TEMPORARY: timetable disabled until Lesson 6.2 */}
           <Timetable
             days={['Mon', 'Tue', 'Wed', 'Thu', 'Fri']}
-            timeSlots={[]}
-            bookings={[]}
+            timeSlots={timeSlots}
             highlightRoom={selectedRoom?.id}
           />
         </section>
