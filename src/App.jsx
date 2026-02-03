@@ -1,3 +1,5 @@
+import { supabase } from './lib/supabase'
+import { useEffect, useState } from 'react'
 import React, { useState } from 'react'
 import Timetable from './components/Timetable'
 import RoomList from './components/RoomList'
