@@ -2,82 +2,78 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 import TopNav from './components/TopNav'
-import RoomList from './components/RoomList'
-import Timetable from './components/Timetable'
+import RoomCards from './components/RoomCards'
+import RoomFocus from './components/RoomFocus'
+import BookingSheet from './components/BookingSheet'
+
+import './styles/tokens.css'
+import './styles/app.css'
 
 export default function App() {
+  const [lang, setLang] = useState('en') // 'en' | 'bm'
   const [rooms, setRooms] = useState([])
   const [timeSlots, setTimeSlots] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
+  const [selectedSlot, setSelectedSlot] = useState(null)
 
   // Load rooms
   useEffect(() => {
     const loadRooms = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('rooms')
         .select('*')
         .eq('active', true)
         .order('name_en')
 
-      if (error) {
-        console.error('Rooms error:', error)
-      } else {
-        setRooms(data)
-      }
+      setRooms(data || [])
     }
-
     loadRooms()
   }, [])
 
-  // Load time slots (weekday first)
+  // Load weekday time slots (mobile default)
   useEffect(() => {
     const loadTimeSlots = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('time_slots')
         .select('*')
         .eq('day_type', 'weekday')
         .order('start_time')
 
-      if (error) {
-        console.error('Time slots error:', error)
-      } else {
-        setTimeSlots(data)
-      }
+      setTimeSlots(data || [])
     }
-
     loadTimeSlots()
   }, [])
 
   return (
-    <div className="app-shell">
-      <TopNav />
+    <div className="app">
+      <TopNav lang={lang} onToggleLang={setLang} />
 
-      <main className="app-main">
-        <section className="left-pane">
-          <RoomList
-            rooms={rooms}
-            selected={selectedRoom}
-            onSelect={setSelectedRoom}
-          />
-        </section>
+      {!selectedRoom && (
+        <RoomCards
+          lang={lang}
+          rooms={rooms}
+          onSelect={setSelectedRoom}
+        />
+      )}
 
-        <section className="right-pane">
-          <div className="search-card">
-            <div className="search-left">
-              <h2>Room Availability</h2>
-              <p className="muted">
-                Select a room to view its weekly availability.
-              </p>
-            </div>
-          </div>
+      {selectedRoom && (
+        <RoomFocus
+          lang={lang}
+          room={selectedRoom}
+          timeSlots={timeSlots}
+          onBack={() => setSelectedRoom(null)}
+          onSelectSlot={setSelectedSlot}
+        />
+      )}
 
-          <Timetable
-            days={['Mon', 'Tue', 'Wed', 'Thu', 'Fri']}
-            timeSlots={timeSlots}
-            highlightRoom={selectedRoom?.id}
-          />
-        </section>
-      </main>
+      {selectedSlot && (
+        <BookingSheet
+          lang={lang}
+          room={selectedRoom}
+          slot={selectedSlot}
+          onClose={() => setSelectedSlot(null)}
+        />
+      )}
     </div>
   )
 }
