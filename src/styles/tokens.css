@@ -1,0 +1,10 @@
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --primary: #e67e22;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --radius: 14px;
+  --shadow-card: 0 6px 20px rgba(0,0,0,.08);
+  --shadow-sheet: 0 20px 40px rgba(0,0,0,.25);
+}
