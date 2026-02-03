@@ -43,6 +43,23 @@ export default function App() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [rooms] = useState(ROOMS)
   const [timeSlots] = useState(TIME_SLOTS)
+  const [rooms, setRooms] = useState([])
+  useEffect(() => {
+  const loadRooms = async () => {
+    const { data, error } = await supabase
+      .from('rooms')
+      .select('*')
+
+    if (error) {
+      console.error('Error loading rooms:', error)
+    } else {
+      setRooms(data)
+    }
+  }
+
+  loadRooms()
+}, [])
+console.log('ROOMS FROM SUPABASE:', rooms)
 
   return (
     <div className="app-shell">
