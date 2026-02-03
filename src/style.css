@@ -1,0 +1,46 @@
+:root {
+  --bg: #f5f7fb;
+  --glass: rgba(255, 255, 255, 0.6);
+  --border: rgba(255, 255, 255, 0.3);
+  --primary: #3b82f6;
+  --text: #1f2937;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #eef2ff, #f8fafc);
+  color: var(--text);
+}
+
+.top-bar {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.top-bar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.top-bar p {
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
