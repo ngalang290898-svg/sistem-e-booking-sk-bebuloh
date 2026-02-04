@@ -1,39 +1,55 @@
 :root {
-  /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Institutional Neutrals */
-  --bg-app: #f4f6f8;           /* calm, official */
-  --bg-surface: #ffffff;       /* true surface */
-  --bg-elevated: #ffffff;
+  /* Surfaces */
+  --bg-app: #eef1f6;
+  --bg-surface: #ffffff;
+  --bg-muted: rgba(255, 255, 255, 0.65);
+  --bg-elevated: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.7);
 
   /* Text */
-  --text-strong: #0f172a;      /* slate-900 */
-  --text-body: #1f2937;        /* slate-800 */
-  --text-muted: #64748b;       /* slate-500 */
+  --text-strong: #0b1220;
+  --text-body: #1f2937;
+  --text-muted: #6b7280;
+  --text-disabled: #9ca3af;
 
-  /* Brand / Action */
-  --brand-primary: #c2410c;    /* institutional amber */
-  --brand-primary-strong: #9a3412;
+  /* Accent */
+  --primary: #e86a22;
+  --primary-strong: #c65116;
+  --secondary: #2f6fed;
+  --secondary-strong: #2559c8;
+  --tertiary: #17a2a0;
+  --tertiary-strong: #0f7a78;
+  --slate: #0f172a;
+  --purple: #6f4cff;
+  --amber-soft: rgba(255, 141, 59, 0.2);
+  --blue-soft: rgba(47, 111, 237, 0.18);
+  --teal-soft: rgba(23, 162, 160, 0.18);
 
-  /* Structural Accent (authority) */
-  --accent-slate: #0b1220;     /* deep slate */
+  /* Borders */
+  --border-soft: rgba(148, 163, 184, 0.25);
+  --border-strong: rgba(148, 163, 184, 0.45);
 
-  /* Feedback */
-  --state-disabled: #cbd5e1;   /* slate-300 */
-  --state-border: #e5e7eb;     /* neutral-200 */
+  /* Status */
+  --success: #0f766e;
+  --warning: #b45309;
+  --danger: #b91c1c;
 
   /* Radius */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
 
-  /* Elevation (ONLY TWO LEVELS) */
-  --shadow-card: 0 8px 28px rgba(2, 6, 23, 0.10);
-  --shadow-sheet: 0 24px 60px rgba(2, 6, 23, 0.35);
+  /* Shadows */
+  --shadow-card: 0 18px 40px rgba(15, 23, 42, 0.15);
+  --shadow-soft: 0 10px 22px rgba(15, 23, 42, 0.1);
+  --shadow-sheet: 0 36px 70px rgba(15, 23, 42, 0.28);
+  --shadow-glow: 0 0 40px rgba(232, 106, 34, 0.25);
 
   /* Motion */
-  --ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --dur-fast: 120ms;
   --dur-base: 200ms;
   --dur-slow: 300ms;
