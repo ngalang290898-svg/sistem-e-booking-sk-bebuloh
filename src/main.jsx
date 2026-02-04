@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { AnimatePresence, motion } from 'framer-motion'
 import App from './App'
 import './styles/index.css'
 
