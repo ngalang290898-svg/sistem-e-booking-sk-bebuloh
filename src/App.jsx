@@ -22,6 +22,8 @@ export default function App() {
   const [lang, setLang] = useState('en')
   const [viewMode, setViewMode] = useState('today')
   const [rooms, setRooms] = useState([])
+  const [teachers, setTeachers] = useState([])
+  const [classes, setClasses] = useState([])
   const [timeSlots, setTimeSlots] = useState([])
   const [bookings, setBookings] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
@@ -61,7 +63,7 @@ export default function App() {
       setLoading(prev => ({ ...prev, rooms: true }))
       const { data, error: roomsError } = await supabase
         .from('rooms')
-        .select('*')
+        .select('id, name_en, name_bm, icon, active')
         .eq('active', true)
         .order('name_en')
       if (!isMounted) return

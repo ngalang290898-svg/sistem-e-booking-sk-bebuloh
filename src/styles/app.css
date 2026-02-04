@@ -10,7 +10,7 @@ body {
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--bg-app);
+  background: radial-gradient(circle at top, #f8fbff 0%, #eef1f6 55%, #e9edf5 100%);
   color: var(--text-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -129,6 +129,7 @@ p {
   font-weight: 600;
   font-size: 0.82rem;
   cursor: pointer;
+  box-shadow: var(--shadow-soft);
 }
 
 .page-header {
@@ -384,7 +385,7 @@ p {
   background: rgba(15, 23, 42, 0.35);
   display: flex;
   align-items: flex-end;
-  animation: fadeIn var(--dur-base) var(--ease-standard);
+  z-index: 30;
 }
 
 .sheet {
@@ -394,7 +395,6 @@ p {
   border-radius: 24px 24px 0 0;
   padding: 20px;
   box-shadow: var(--shadow-sheet);
-  animation: slideUp var(--dur-slow) var(--ease-standard);
 }
 
 .sheet-header {
