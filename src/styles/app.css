@@ -278,6 +278,124 @@ p {
   z-index: 0;
 }
 
+.week-overview {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.week-overview__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.week-overview__grid {
+  display: grid;
+  gap: 16px;
+}
+
+.week-day {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-soft);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.week-day__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.week-day__label {
+  color: var(--text-strong);
+}
+
+.week-day__date {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.week-day__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.slot-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.slot-row--recess {
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--text-muted);
+}
+
+.slot-row__time {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.slot-row__meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.slot-row__rooms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.room-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  min-width: 120px;
+  flex: 1 1 140px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.room-chip__label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-strong);
+  min-width: 0;
+  word-break: break-word;
+}
+
+.room-chip__status {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.room-chip.is-available {
+  background: rgba(47, 111, 237, 0.14);
+}
+
+.room-chip.is-booked {
+  background: rgba(232, 106, 34, 0.18);
+}
+
+.room-chip.is-unavailable {
+  opacity: 0.6;
+}
+
 .room-focus {
   padding: 0;
 }

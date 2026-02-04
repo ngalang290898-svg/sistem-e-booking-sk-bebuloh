@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { labels } from '../lib/labels'
+import WeekOverview from './WeekOverview'
 
 export default function RoomCards({
   rooms,
@@ -8,6 +9,9 @@ export default function RoomCards({
   lang,
   viewMode,
   onModeChange,
+  weekDates,
+  timeSlots,
+  getSlotState,
   availability,
   isLoading,
   error
@@ -99,6 +103,16 @@ export default function RoomCards({
           )
         })}
       </div>
+
+      {viewMode === 'week' && (
+        <WeekOverview
+          rooms={rooms}
+          timeSlots={timeSlots}
+          weekDates={weekDates}
+          getSlotState={getSlotState}
+          lang={lang}
+        />
+      )}
     </main>
   )
 }

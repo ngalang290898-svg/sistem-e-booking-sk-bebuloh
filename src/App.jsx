@@ -29,6 +29,8 @@ export default function App() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [selectedDate, setSelectedDate] = useState(getNextWorkingDate())
   const [selectedSlot, setSelectedSlot] = useState(null)
+  const adminEnabled = false
+  const [adminSession, setAdminSession] = useState(null)
   const [loading, setLoading] = useState({
     rooms: true,
     slots: true,
@@ -79,6 +81,26 @@ export default function App() {
       isMounted = false
     }
   }, [])
+
+  useEffect(() => {
+    if (!adminEnabled) return
+    let isMounted = true
+    const hydrateSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!isMounted) return
+      setAdminSession(data.session)
+    }
+    hydrateSession()
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setAdminSession(session)
+      }
+    )
+    return () => {
+      isMounted = false
+      listener.subscription.unsubscribe()
+    }
+  }, [adminEnabled])
 
   useEffect(() => {
     let isMounted = true
@@ -340,6 +362,9 @@ export default function App() {
         <RoomCards
           lang={lang}
           rooms={rooms}
+          weekDates={weekDates}
+          timeSlots={timeSlots}
+          getSlotState={getSlotState}
           availability={room =>
             timeSlots.length ? getRoomAvailability(room) : null
           }
