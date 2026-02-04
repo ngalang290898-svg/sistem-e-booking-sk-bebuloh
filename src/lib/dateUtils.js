@@ -1,17 +1,6 @@
-export const toDateKey = date => {
+export const toISODate = date => {
   const value = new Date(date)
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, '0')
-  const day = String(value.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-export const parseDateKey = dateValue => {
-  if (!dateValue) return null
-  if (dateValue instanceof Date) return dateValue
-  const [year, month, day] = dateValue.split('-').map(Number)
-  if (!year || !month || !day) return null
-  return new Date(year, month - 1, day)
+  return value.toISOString().split('T')[0]
 }
 
 export const startOfDay = date => {
@@ -33,7 +22,7 @@ export const addMinutes = (date, minutes) => {
 }
 
 export const isSameDay = (a, b) =>
-  toDateKey(a) === toDateKey(b)
+  toISODate(a) === toISODate(b)
 
 export const getNextWorkingDate = (fromDate = new Date()) => {
   let date = startOfDay(fromDate)
@@ -71,11 +60,4 @@ export const formatShortDate = (date, lang) =>
   new Intl.DateTimeFormat(lang === 'bm' ? 'ms-MY' : 'en-GB', {
     day: '2-digit',
     month: 'short'
-  }).format(date)
-
-export const formatLongDate = (date, lang) =>
-  new Intl.DateTimeFormat(lang === 'bm' ? 'ms-MY' : 'en-GB', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'long'
   }).format(date)

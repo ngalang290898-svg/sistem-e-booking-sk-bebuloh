@@ -1,11 +1,5 @@
 import React from 'react'
-import { motion } from 'framer-motion'
-import {
-  formatLongDate,
-  formatShortDate,
-  isSameDay,
-  toDateKey
-} from '../lib/dateUtils'
+import { formatShortDate, isSameDay, toISODate } from '../lib/dateUtils'
 import { labels } from '../lib/labels'
 
 const dayLabels = {
@@ -23,25 +17,30 @@ export default function RoomFocus({
   selectedDate,
   onSelectDate,
   isDateDisabled,
+  bookings,
   getSlotState
 }) {
-  const dateKey = toDateKey(selectedDate)
+  const dateKey = toISODate(selectedDate)
+  const dayLabel =
+    dayLabels[lang][selectedDate.getDay() - 1] || dayLabels[lang][0]
+  const bookingCount = bookings.filter(
+    booking => booking.room_id === room.id && booking.date === dateKey
+  ).length
 
   return (
     <main className="room-focus">
       <header className="focus-header">
-        <motion.button
+        <button
           className="icon-button"
           onClick={onBack}
           type="button"
-          whileTap={{ scale: 0.92 }}
         >
           ←
-        </motion.button>
+        </button>
         <div>
           <h2>{lang === 'en' ? room.name_en : room.name_bm}</h2>
           <p className="meta">
-            {formatLongDate(selectedDate, lang)}
+            {dayLabel} · {formatShortDate(selectedDate, lang)}
           </p>
         </div>
       </header>
@@ -51,7 +50,7 @@ export default function RoomFocus({
           const disabled = isDateDisabled(date)
           const active = isSameDay(date, selectedDate)
           return (
-            <motion.button
+            <button
               key={date.toISOString()}
               className={`${active ? 'active' : ''} ${
                 disabled ? 'disabled' : ''
@@ -59,13 +58,12 @@ export default function RoomFocus({
               onClick={() => onSelectDate(date)}
               type="button"
               disabled={disabled}
-              whileTap={{ scale: 0.96 }}
             >
               <span>{dayLabels[lang][index]}</span>
               <span className="tab-date">
                 {formatShortDate(date, lang)}
               </span>
-            </motion.button>
+            </button>
           )
         })}
       </div>
@@ -74,25 +72,14 @@ export default function RoomFocus({
         {timeSlots.map(slot => {
           const state = getSlotState(slot, selectedDate, room.id)
           const statusLabel = state.isRecess
-            ? labels[lang].statusRecess
+            ? labels[lang].recess
             : state.isBooked
-            ? labels[lang].statusBooked
+            ? labels[lang].booked
             : state.isClosed
-            ? labels[lang].statusClosed
-            : state.isDateValid
-            ? labels[lang].statusAvailable
-            : labels[lang].statusUnavailable
-          const statusClass = state.isRecess
-            ? 'is-recess'
-            : state.isBooked
-            ? 'is-booked'
-            : state.isClosed
-            ? 'is-closed'
-            : state.isDateValid
-            ? 'is-available'
-            : 'is-unavailable'
+            ? labels[lang].closed
+            : labels[lang].available
           return (
-            <motion.button
+            <button
               key={`${dateKey}-${slot.id}`}
               disabled={!state.isAvailable}
               className={`slot-card ${
@@ -100,7 +87,6 @@ export default function RoomFocus({
               } ${!state.isAvailable ? 'slot-card--disabled' : ''}`}
               onClick={() => onSelectSlot(slot)}
               type="button"
-              whileTap={{ scale: 0.97 }}
             >
               <div className="slot-time">
                 <span className="slot-primary">
@@ -112,12 +98,16 @@ export default function RoomFocus({
                     : labels[lang].teachingSlot}
                 </span>
               </div>
-              <span className={`slot-status ${statusClass}`}>
-                {statusLabel}
-              </span>
-            </motion.button>
+              <span className="slot-status">{statusLabel}</span>
+            </button>
           )
         })}
+      </div>
+
+      <div className="focus-footer">
+        <p className="meta">
+          {labels[lang].roomFocusTitle} · {bookingCount} bookings
+        </p>
       </div>
     </main>
   )
