@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { supabase } from './lib/supabase'
 import {
   addMinutes,
@@ -9,7 +8,7 @@ import {
   getWeekDates,
   isSameDay,
   isWithinBookingWindow,
-  toDateKey
+  toISODate
 } from './lib/dateUtils'
 import { labels } from './lib/labels'
 
@@ -17,6 +16,7 @@ import TopNav from './components/TopNav'
 import RoomCards from './components/RoomCards'
 import RoomFocus from './components/RoomFocus'
 import BookingSheet from './components/BookingSheet'
+import AdminPanel from './components/AdminPanel'
 
 export default function App() {
   const [lang, setLang] = useState('en')
@@ -29,22 +29,13 @@ export default function App() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [selectedDate, setSelectedDate] = useState(getNextWorkingDate())
   const [selectedSlot, setSelectedSlot] = useState(null)
-  const adminEnabled = false
-  const [adminSession, setAdminSession] = useState(null)
   const [loading, setLoading] = useState({
     rooms: true,
     slots: true,
-    bookings: true,
-    teachers: true,
-    classes: true
+    bookings: true
   })
   const [error, setError] = useState('')
-
-  const handleLoadError = (source, loadError) => {
-    if (!loadError) return
-    console.error(`[Supabase:${source}]`, loadError)
-    setError(loadError.message)
-  }
+  const [adminSession, setAdminSession] = useState(null)
 
   const baseDate = useMemo(() => getNextWorkingDate(), [])
   const weekDates = useMemo(() => getWeekDates(baseDate), [baseDate])
@@ -76,7 +67,9 @@ export default function App() {
         .eq('active', true)
         .order('name_en')
       if (!isMounted) return
-      handleLoadError('rooms', roomsError)
+      if (roomsError) {
+        setError(roomsError.message)
+      }
       setRooms(data || [])
       setLoading(prev => ({ ...prev, rooms: false }))
     }
@@ -85,26 +78,6 @@ export default function App() {
       isMounted = false
     }
   }, [])
-
-  useEffect(() => {
-    if (!adminEnabled) return
-    let isMounted = true
-    const hydrateSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (!isMounted) return
-      setAdminSession(data.session)
-    }
-    hydrateSession()
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setAdminSession(session)
-      }
-    )
-    return () => {
-      isMounted = false
-      listener.subscription.unsubscribe()
-    }
-  }, [adminEnabled])
 
   useEffect(() => {
     let isMounted = true
@@ -116,7 +89,9 @@ export default function App() {
         .in('day_type', ['weekday', 'friday'])
         .order('start_time')
       if (!isMounted) return
-      handleLoadError('time_slots', slotsError)
+      if (slotsError) {
+        setError(slotsError.message)
+      }
       setTimeSlots(data || [])
       setLoading(prev => ({ ...prev, slots: false }))
     }
@@ -133,12 +108,14 @@ export default function App() {
       const { data, error: bookingsError } = await supabase
         .from('bookings')
         .select(
-          'id, booking_date, room_id, time_slot_id, teacher_id, class_id, subject'
+          'id, room_id, date, time_slot_id, teacher_name, class_name, subject'
         )
-        .gte('booking_date', toDateKey(weekRange.start))
-        .lte('booking_date', toDateKey(weekRange.end))
+        .gte('date', toISODate(weekRange.start))
+        .lte('date', toISODate(weekRange.end))
       if (!isMounted) return
-      handleLoadError('bookings', bookingsError)
+      if (bookingsError) {
+        setError(bookingsError.message)
+      }
       setBookings(data || [])
       setLoading(prev => ({ ...prev, bookings: false }))
     }
@@ -150,42 +127,20 @@ export default function App() {
 
   useEffect(() => {
     let isMounted = true
-    const loadTeachers = async () => {
-      setLoading(prev => ({ ...prev, teachers: true }))
-      const { data, error: teachersError } = await supabase
-        .from('teachers')
-        .select('id, name, active')
-        .eq('active', true)
-        .order('name')
+    const hydrateSession = async () => {
+      const { data } = await supabase.auth.getSession()
       if (!isMounted) return
-      handleLoadError('teachers', teachersError)
-      setTeachers(data || [])
-      setLoading(prev => ({ ...prev, teachers: false }))
+      setAdminSession(data.session)
     }
-    loadTeachers()
+    hydrateSession()
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setAdminSession(session)
+      }
+    )
     return () => {
       isMounted = false
-    }
-  }, [])
-
-  useEffect(() => {
-    let isMounted = true
-    const loadClasses = async () => {
-      setLoading(prev => ({ ...prev, classes: true }))
-      const { data, error: classesError } = await supabase
-        .from('classes')
-        .select('id, tahap, name_en, name_bm, active')
-        .eq('active', true)
-        .order('tahap')
-        .order('name_en')
-      if (!isMounted) return
-      handleLoadError('classes', classesError)
-      setClasses(data || [])
-      setLoading(prev => ({ ...prev, classes: false }))
-    }
-    loadClasses()
-    return () => {
-      isMounted = false
+      listener.subscription.unsubscribe()
     }
   }, [])
 
@@ -196,6 +151,13 @@ export default function App() {
     )
   }, [selectedDate, timeSlots])
 
+  const classOptions = useMemo(() => {
+    const unique = new Set(
+      bookings.map(booking => booking.class_name).filter(Boolean)
+    )
+    return Array.from(unique).sort()
+  }, [bookings])
+
   const subjectOptions = useMemo(() => {
     const unique = new Set(
       bookings.map(booking => booking.subject).filter(Boolean)
@@ -203,14 +165,17 @@ export default function App() {
     return Array.from(unique).sort()
   }, [bookings])
 
+  const isAdmin =
+    adminSession?.user?.email?.toLowerCase().endsWith('@delima.edu.my') ?? false
+
   const bookingMapByDate = useMemo(() => {
     const map = new Map()
     bookings.forEach(booking => {
-      if (!map.has(booking.booking_date)) {
-        map.set(booking.booking_date, new Map())
+      if (!map.has(booking.date)) {
+        map.set(booking.date, new Map())
       }
       map
-        .get(booking.booking_date)
+        .get(booking.date)
         .set(`${booking.room_id}-${booking.time_slot_id}`, booking)
     })
     return map
@@ -225,7 +190,7 @@ export default function App() {
   }
 
   const getBookingMap = date => {
-    const dateKey = toDateKey(date)
+    const dateKey = toISODate(date)
     return bookingMapByDate.get(dateKey) || new Map()
   }
 
@@ -245,8 +210,7 @@ export default function App() {
       isAvailable,
       isBooked,
       isClosed,
-      isRecess,
-      isDateValid
+      isRecess
     }
   }
 
@@ -306,11 +270,11 @@ export default function App() {
     if (!slotState.isAvailable) {
       return { success: false, message: labels[lang].disabled }
     }
-    const dateKey = toDateKey(selectedDate)
+    const dateKey = toISODate(selectedDate)
     const existingLocal = bookings.some(
       booking =>
         booking.room_id === selectedRoom.id &&
-        booking.booking_date === dateKey &&
+        booking.date === dateKey &&
         booking.time_slot_id === selectedSlot.id
     )
     if (existingLocal) {
@@ -320,7 +284,7 @@ export default function App() {
       .from('bookings')
       .select('id')
       .eq('room_id', selectedRoom.id)
-      .eq('booking_date', dateKey)
+      .eq('date', dateKey)
       .eq('time_slot_id', selectedSlot.id)
       .limit(1)
     if (existingRemote && existingRemote.length > 0) {
@@ -330,17 +294,16 @@ export default function App() {
       .from('bookings')
       .insert({
         room_id: selectedRoom.id,
-        booking_date: dateKey,
+        date: dateKey,
         time_slot_id: selectedSlot.id,
-        teacher_id: payload.teacherId,
-        class_id: payload.classId,
+        teacher_name: payload.teacherName,
+        class_name: payload.className,
         subject: payload.subject
       })
       .select(
-        'id, booking_date, room_id, time_slot_id, teacher_id, class_id, subject'
+        'id, room_id, date, time_slot_id, teacher_name, class_name, subject'
       )
     if (insertError) {
-      console.error('[Supabase:bookings:insert]', insertError)
       return { success: false, message: insertError.message }
     }
     setBookings(prev => [...prev, ...(data || [])])
@@ -353,15 +316,20 @@ export default function App() {
       <TopNav
         lang={lang}
         onToggleLang={setLang}
+        onAdminLogin={() =>
+          supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: window.location.origin
+            }
+          })
+        }
       />
 
       {!selectedRoom && (
         <RoomCards
           lang={lang}
           rooms={rooms}
-          weekDates={weekDates}
-          timeSlots={timeSlots}
-          getSlotState={getSlotState}
           availability={room =>
             timeSlots.length ? getRoomAvailability(room) : null
           }
@@ -386,27 +354,36 @@ export default function App() {
           }}
           isDateDisabled={date => !canSelectDate(date)}
           timeSlots={daySlots}
+          bookings={bookings}
           onBack={() => setSelectedRoom(null)}
           onSelectSlot={setSelectedSlot}
           getSlotState={getSlotState}
         />
       )}
 
-      <AnimatePresence>
-        {selectedSlot && (
-          <BookingSheet
-            lang={lang}
-            room={selectedRoom}
-            slot={selectedSlot}
-            date={selectedDate}
-            teachers={teachers}
-            classes={classes}
-            subjectOptions={subjectOptions}
-            onClose={() => setSelectedSlot(null)}
-            onConfirm={handleConfirmBooking}
-          />
-        )}
-      </AnimatePresence>
+      {selectedSlot && (
+        <BookingSheet
+          lang={lang}
+          room={selectedRoom}
+          slot={selectedSlot}
+          date={selectedDate}
+          classOptions={classOptions}
+          subjectOptions={subjectOptions}
+          onClose={() => setSelectedSlot(null)}
+          onConfirm={handleConfirmBooking}
+        />
+      )}
+
+      {isAdmin && (
+        <AdminPanel
+          lang={lang}
+          bookings={bookings}
+          rooms={rooms}
+          timeSlots={timeSlots}
+          weekRange={weekRange}
+          onSignOut={() => supabase.auth.signOut()}
+        />
+      )}
     </div>
   )
 }

@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { formatShortDate } from '../lib/dateUtils'
 import { labels } from '../lib/labels'
-import Dropdown from './Dropdown'
 
 export default function BookingSheet({
   room,
@@ -10,74 +8,41 @@ export default function BookingSheet({
   date,
   onClose,
   lang,
-  teachers,
-  classes,
+  classOptions,
   subjectOptions,
   onConfirm
 }) {
-  const [teacherId, setTeacherId] = useState('')
-  const [classId, setClassId] = useState('')
+  const [teacherName, setTeacherName] = useState('')
+  const [className, setClassName] = useState('')
   const [subject, setSubject] = useState('')
+  const [customClass, setCustomClass] = useState('')
   const [customSubject, setCustomSubject] = useState('')
   const [notice, setNotice] = useState('')
-  const [success, setSuccess] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const resolvedSubject = subject === '__custom' ? customSubject : subject
+  const resolvedClass = className === '__custom' ? customClass : className
+  const resolvedSubject =
+    subject === '__custom' ? customSubject : subject
 
   const canSubmit = useMemo(() => {
     return (
-      teacherId &&
-      classId &&
+      teacherName.trim() &&
+      resolvedClass.trim() &&
       resolvedSubject.trim()
     )
-  }, [teacherId, classId, resolvedSubject])
-
-  const teacherOptions = useMemo(
-    () =>
-      teachers.map(teacher => ({
-        id: teacher.id,
-        label: teacher.name
-      })),
-    [teachers]
-  )
-
-  const classSelectOptions = useMemo(
-    () =>
-      classes.map(classItem => ({
-        id: classItem.id,
-        label:
-          lang === 'en' ? classItem.name_en : classItem.name_bm,
-        meta:
-          classItem.tahap === 1
-            ? labels[lang].classTahapOne
-            : labels[lang].classTahapTwo
-      })),
-    [classes, lang]
-  )
-
-  const subjectSelectOptions = useMemo(() => {
-    const unique = subjectOptions
-      .map(option => option.trim())
-      .filter(Boolean)
-    return [
-      ...unique.map(option => ({ id: option, label: option })),
-      { id: '__custom', label: labels[lang].addSubject }
-    ]
-  }, [subjectOptions, lang])
+  }, [teacherName, resolvedClass, resolvedSubject])
 
   const handleSubmit = async event => {
     event.preventDefault()
     setNotice('')
-    setSuccess(false)
     if (!canSubmit) {
       setNotice(labels[lang].formIncomplete)
       return
     }
     setIsSubmitting(true)
     const result = await onConfirm({
-      teacherId,
-      classId,
+      teacherName: teacherName.trim(),
+      className: resolvedClass.trim(),
       subject: resolvedSubject.trim()
     })
     setIsSubmitting(false)
@@ -85,38 +50,26 @@ export default function BookingSheet({
       setNotice(result.message)
       return
     }
-    setSuccess(true)
     setNotice(labels[lang].bookingSuccess)
   }
 
   return (
-    <motion.div
-      className="sheet-backdrop"
-      onClick={onClose}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
+    <div className="sheet-backdrop" onClick={onClose}>
+      <div
         className="sheet"
         onClick={event => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        initial={{ y: 120, opacity: 0, scale: 0.98 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 120, opacity: 0, scale: 0.98 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
       >
         <div className="sheet-header">
           <h3>{labels[lang].bookingSheetTitle}</h3>
-          <motion.button
+          <button
             type="button"
             className="icon-button"
             onClick={onClose}
-            whileTap={{ scale: 0.9 }}
           >
             ✕
-          </motion.button>
+          </button>
         </div>
 
         <div className="sheet-details">
@@ -137,100 +90,75 @@ export default function BookingSheet({
         </div>
 
         <form onSubmit={handleSubmit} className="sheet-form">
-          <Dropdown
-            label={labels[lang].teacherName}
-            placeholder={labels[lang].selectTeacher}
-            options={teacherOptions}
-            value={teacherId}
-            onChange={setTeacherId}
-            disabled={teacherOptions.length === 0}
-            description={
-              teacherOptions.length === 0
-                ? labels[lang].teacherEmpty
-                : labels[lang].teachersTitle
-            }
-          />
+          <label className="field">
+            <span>{labels[lang].teacherName}</span>
+            <input
+              type="text"
+              value={teacherName}
+              onChange={event => setTeacherName(event.target.value)}
+              placeholder={labels[lang].teacherName}
+            />
+          </label>
 
-          <Dropdown
-            label={labels[lang].classLabel}
-            placeholder={labels[lang].selectClass}
-            options={classSelectOptions}
-            value={classId}
-            onChange={setClassId}
-            disabled={classSelectOptions.length === 0}
-            description={
-              classSelectOptions.length === 0
-                ? labels[lang].classEmpty
-                : labels[lang].classesTitle
-            }
-          />
+          <label className="field">
+            <span>{labels[lang].classLabel}</span>
+            <select
+              value={className}
+              onChange={event => setClassName(event.target.value)}
+            >
+              <option value="">{labels[lang].selectClass}</option>
+              {classOptions.map(option => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+              <option value="__custom">{labels[lang].addNew}</option>
+            </select>
+            {className === '__custom' && (
+              <input
+                type="text"
+                value={customClass}
+                onChange={event => setCustomClass(event.target.value)}
+                placeholder={labels[lang].enterClass}
+              />
+            )}
+          </label>
 
-          <Dropdown
-            label={labels[lang].subjectLabel}
-            placeholder={labels[lang].selectSubject}
-            options={subjectSelectOptions}
-            value={subject}
-            onChange={setSubject}
-            disabled={false}
-            description={
-              subjectOptions.length === 0
-                ? labels[lang].subjectEmpty
-                : labels[lang].subjectsTitle
-            }
-          />
-
-          {subject === '__custom' && (
-            <label className="field">
-              <span>{labels[lang].subjectLabel}</span>
+          <label className="field">
+            <span>{labels[lang].subjectLabel}</span>
+            <select
+              value={subject}
+              onChange={event => setSubject(event.target.value)}
+            >
+              <option value="">{labels[lang].selectSubject}</option>
+              {subjectOptions.map(option => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+              <option value="__custom">{labels[lang].addNew}</option>
+            </select>
+            {subject === '__custom' && (
               <input
                 type="text"
                 value={customSubject}
                 onChange={event => setCustomSubject(event.target.value)}
                 placeholder={labels[lang].enterSubject}
               />
-            </label>
-          )}
+            )}
+          </label>
 
           {notice && <p className="notice">{notice}</p>}
 
-          <motion.button
+          <button
             className="primary"
             type="submit"
             disabled={!canSubmit || isSubmitting}
-            whileTap={{ scale: 0.97 }}
           >
-            {labels[lang].bookingCTA}
-          </motion.button>
-
-          {!canSubmit && (
-            <p className="helper">{labels[lang].bookingDisabled}</p>
-          )}
+            {labels[lang].confirmBooking}
+          </button>
         </form>
-
-        <AnimatePresence>
-          {success && (
-            <motion.div
-              className="success-toast"
-              initial={{ opacity: 0, scale: 0.94, y: 6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 6 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-            >
-              <div>
-                <p className="success-title">
-                  {labels[lang].bookingSuccessTitle}
-                </p>
-                <p className="success-meta">
-                  {labels[lang].bookingSuccessMeta}
-                </p>
-              </div>
-              <span className="success-burst" aria-hidden="true">
-                ✨
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }
